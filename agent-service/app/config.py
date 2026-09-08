@@ -15,9 +15,17 @@ class Settings(BaseSettings):
     crm_api_url: str = "http://localhost:3002"
     crm_internal_api_key: str
 
+    anthropic_api_key: str = ""
+    claude_model: str = "claude-opus-5"
+    classifier_confidence_threshold: float = 0.6
+
     @property
     def whatsapp_configured(self) -> bool:
         return bool(self.meta_whatsapp_token and self.meta_phone_number_id)
+
+    @property
+    def classifier_configured(self) -> bool:
+        return bool(self.anthropic_api_key)
 
 
 @lru_cache

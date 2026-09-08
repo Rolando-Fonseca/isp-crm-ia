@@ -9,6 +9,8 @@ type InboundBody = {
   waMessageId?: string;
 };
 
+const HISTORY_SIZE = 10;
+
 export async function POST(request: Request) {
   if (!isInternalRequest(request)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -39,7 +41,7 @@ export async function POST(request: Request) {
       create: { phone: body.phone, name: body.name ?? body.phone, source: "WHATSAPP" },
     }));
 
-  await prisma.message.create({
+  const message = await prisma.message.create({
     data: {
       leadId: lead.id,
       direction: "INBOUND",
@@ -48,5 +50,19 @@ export async function POST(request: Request) {
     },
   });
 
-  return NextResponse.json({ leadId: lead.id, stage: lead.stage, isNew: existingLead === null });
+  const recent = await prisma.message.findMany({
+    where: { leadId: lead.id },
+    orderBy: { createdAt: "desc" },
+    take: HISTORY_SIZE,
+    select: { direction: true, body: true },
+  });
+
+  return NextResponse.json({
+    leadId: lead.id,
+    messageId: message.id,
+    stage: lead.stage,
+    isNew: existingLead === null,
+    countryOfInterest: lead.countryOfInterest,
+    history: recent.reverse(),
+  });
 }

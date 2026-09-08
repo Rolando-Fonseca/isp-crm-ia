@@ -27,6 +27,7 @@ model Lead {
   countryOfInterest String?
   stage     LeadStage  @default(ENQUIRY)
   source    LeadSource @default(MANUAL)
+  needsHuman Boolean   @default(false)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -45,5 +46,7 @@ model Message {
   direction   MessageDirection
   body        String
   waMessageId String?          @unique
+  intent      String?
+  confidence  Float?
   createdAt   DateTime         @default(now())
 }

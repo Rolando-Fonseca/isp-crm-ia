@@ -14,6 +14,25 @@ class CRMClient:
             {"phone": phone, "name": name, "text": text, "waMessageId": wa_message_id},
         )
 
+    async def register_classification(
+        self,
+        message_id: str,
+        needs_human: bool,
+        intent: str | None = None,
+        confidence: float | None = None,
+        country_of_interest: str | None = None,
+    ) -> dict:
+        return await self._post(
+            "/api/whatsapp/classification",
+            {
+                "messageId": message_id,
+                "needsHuman": needs_human,
+                "intent": intent,
+                "confidence": confidence,
+                "countryOfInterest": country_of_interest,
+            },
+        )
+
     async def register_outbound(self, lead_id: str, text: str, wa_message_id: str) -> dict:
         return await self._post(
             "/api/whatsapp/outbound",

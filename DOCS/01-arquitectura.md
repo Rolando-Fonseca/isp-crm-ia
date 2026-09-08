@@ -41,8 +41,12 @@ flowchart LR
   2. Por cada mensaje de texto llama a `POST /api/whatsapp/inbound` del CRM
      (autenticado con `x-internal-api-key`), que crea el lead si no existe
      (etapa Consulta, origen WhatsApp) y guarda el mensaje.
-  3. Responde por WhatsApp con un acuse y lo registra vía
-     `POST /api/whatsapp/outbound`. Sin token de Meta configurado, solo lo loguea.
+  3. Clasifica el mensaje con Claude (v0.5.0, salida estructurada): intención,
+     confianza, país de interés y respuesta. Lo guarda vía
+     `POST /api/whatsapp/classification`, que marca `needsHuman` cuando el
+     estudiante pide un asesor, la confianza es baja o el modelo falló.
+  4. Responde por WhatsApp y lo registra vía `POST /api/whatsapp/outbound`.
+     Sin token de Meta configurado, solo lo loguea.
 - Pipeline de agentes previsto:
   1. **Clasificador de intención** — consulta general, quiere aplicar, pregunta de visado, quiere hablar con un humano.
   2. **Lead scoring** — prioridad según país de interés, urgencia, señales de la conversación.

@@ -25,8 +25,17 @@ export default async function LeadsPage() {
               <div className="mt-3 flex flex-col gap-2">
                 {leadsInStage.map((lead) => (
                   <div key={lead.id} className="rounded-md border border-neutral-200 p-2 text-sm">
-                    <p className="font-medium text-neutral-900">{lead.name}</p>
-                    <p className="text-neutral-500">{lead.countryOfInterest}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium text-neutral-900">{lead.name}</p>
+                      {lead.needsHuman && (
+                        <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                          Necesita asesor
+                        </span>
+                      )}
+                    </div>
+                    {lead.countryOfInterest && (
+                      <p className="text-neutral-500">{lead.countryOfInterest}</p>
+                    )}
                     <p className="text-neutral-400">{lead.phone}</p>
                   </div>
                 ))}

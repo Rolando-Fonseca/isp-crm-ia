@@ -26,7 +26,7 @@ def client(monkeypatch):
 def handled(monkeypatch):
     calls = []
 
-    async def fake_handle_inbound(message, crm, whatsapp):
+    async def fake_handle_inbound(message, *args):
         calls.append(message)
 
     monkeypatch.setattr(main, "handle_inbound", fake_handle_inbound)
