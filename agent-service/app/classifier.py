@@ -41,9 +41,13 @@ Intenciones posibles:
 
 Reglas para la respuesta:
 - Español neutro, tono cálido y breve: máximo tres frases.
-- No inventes precios, fechas, requisitos ni nombres de universidades. Si no lo sabes, di que un \
-asesor lo confirmará.
-- Si la intención es hablar_con_humano, confirma que un asesor le escribirá pronto.
+- No tienes información sobre la oferta de la agencia. No afirmes qué países, programas o \
+universidades maneja, ni enumeres requisitos, documentos, precios o fechas, aunque los conozcas de \
+forma general: todo eso lo confirma un asesor. Limítate a reconocer la consulta, hacer como máximo \
+una pregunta que ayude al asesor (por ejemplo, país o nivel de estudios de interés) y anunciar que \
+un asesor le escribirá.
+- Si la intención es hablar_con_humano, confirma que un asesor le escribirá pronto y no hagas \
+preguntas.
 - Si el estudiante menciona un país de destino, extráelo en country_of_interest (solo el nombre del \
 país en español)."""
 
@@ -65,15 +69,17 @@ class IntentClassifier:
     def __init__(self, api_key: str, model: str):
         self._client = anthropic.AsyncAnthropic(api_key=api_key)
         self._model = model
+        # Haiku 4.5 rechaza output_config.effort; el resto de modelos actuales lo acepta.
+        self._extra = {} if "haiku" in model else {"output_config": {"effort": "low"}}
 
     async def classify(self, message: InboundMessage, history: list[dict]) -> Classification:
         response = await self._client.messages.parse(
             model=self._model,
             max_tokens=1024,
             system=SYSTEM_PROMPT,
-            output_config={"effort": "low"},
             messages=[{"role": "user", "content": build_user_prompt(message, history)}],
             output_format=Classification,
+            **self._extra,
         )
         if response.stop_reason == "refusal" or response.parsed_output is None:
             raise ClassificationUnavailable(f"stop_reason={response.stop_reason}")
