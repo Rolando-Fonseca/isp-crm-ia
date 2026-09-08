@@ -2,13 +2,15 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// Telefonos en formato E.164 (+codigo pais + numero), igual que el wa_id que
+// entrega WhatsApp Cloud API, para que el upsert por telefono no duplique leads.
 const leads = [
-  { name: "Camila Torres", phone: "+54 9 11 5555-0101", countryOfInterest: "España", stage: "ENQUIRY" as const },
-  { name: "Julián Rodríguez", phone: "+57 300 555 0102", countryOfInterest: "Canadá", stage: "ENQUIRY" as const },
-  { name: "Valentina Gómez", phone: "+52 1 55 5555 0103", countryOfInterest: "Alemania", stage: "DOCUMENTATION" as const },
-  { name: "Mateo Fernández", phone: "+56 9 5555 0104", countryOfInterest: "Portugal", stage: "APPLICATION" as const },
-  { name: "Sofía Ramírez", phone: "+51 955 555 105", countryOfInterest: "Irlanda", stage: "VISA" as const },
-  { name: "Diego Castro", phone: "+593 99 555 0106", countryOfInterest: "España", stage: "ENROLLMENT" as const },
+  { name: "Camila Torres", phone: "+5491155550101", countryOfInterest: "España", stage: "ENQUIRY" as const },
+  { name: "Julián Rodríguez", phone: "+573005550102", countryOfInterest: "Canadá", stage: "ENQUIRY" as const },
+  { name: "Valentina Gómez", phone: "+5215555550103", countryOfInterest: "Alemania", stage: "DOCUMENTATION" as const },
+  { name: "Mateo Fernández", phone: "+56955550104", countryOfInterest: "Portugal", stage: "APPLICATION" as const },
+  { name: "Sofía Ramírez", phone: "+51955555105", countryOfInterest: "Irlanda", stage: "VISA" as const },
+  { name: "Diego Castro", phone: "+593995550106", countryOfInterest: "España", stage: "ENROLLMENT" as const },
 ];
 
 async function main() {

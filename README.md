@@ -12,29 +12,47 @@ matrícula).
 
 ## Estado
 
-`v0.3.0-dev` — CRM en `crm-web/` (Next.js + Tailwind + Prisma) conectado a
-Postgres local real vía Docker. Pipeline de leads leyendo y sembrado desde la
-base de datos. Falta el canal de WhatsApp.
+`v0.4.0-dev` — CRM (`crm-web/`) sobre Postgres local vía Docker, y servicio de
+agentes (`agent-service/`) que recibe el webhook de WhatsApp Cloud API, crea el
+lead en el CRM y responde con un acuse. Falta la clasificación de intención con IA.
+
+## Estructura
+
+```
+crm-web/        Next.js + Prisma — CRM, pipeline de leads, API interna  (puerto 3002)
+agent-service/  Python + FastAPI — webhook de WhatsApp, respuesta      (puerto 8002)
+DOCS/           Arquitectura, integración WhatsApp, alcance MVP, roadmap
+docker-compose.yml  Postgres 16 local                                   (puerto 5434)
+```
 
 ## Desarrollo local
 
 ```bash
-# 1. Levantar Postgres local (puerto 5434, ver docker-compose.yml)
+# 1. Postgres local (puerto 5434, ver docker-compose.yml)
 docker compose up -d
 
 # 2. CRM
 cd crm-web
 npm install
-cp .env.example .env   # ya viene apuntando a localhost:5434
-npx prisma migrate dev  # crea las tablas
-npx prisma db seed      # carga leads de ejemplo
-npm run dev
+cp .env.example .env        # ya viene apuntando a localhost:5434
+npx prisma migrate deploy   # crea las tablas
+npx prisma db seed          # carga leads de ejemplo
+npm run dev                 # http://localhost:3002
+
+# 3. Servicio de agentes (otra terminal)
+cd agent-service
+python -m venv .venv && .venv/Scripts/activate
+pip install -r requirements.txt
+cp .env.example .env        # CRM_INTERNAL_API_KEY debe coincidir con INTERNAL_API_KEY del CRM
+uvicorn app.main:app --port 8002 --reload
+
+# 4. Simular un mensaje de WhatsApp sin cuenta de Meta
+python scripts/send_test_message.py --phone 5491155550199 --name "Ana Pérez" --text "Hola"
 ```
 
-Abre [http://localhost:3002](http://localhost:3002). Puerto fijo `3002` (rango
-académico 3001-3008, ver `DOCS`). Postgres local en `5434` — nunca usar los
-puertos de producción de V1 (3000, 4000, 5433, 5555, 6379), que están corriendo
-en el mismo Docker de la máquina.
+Puertos fijos: CRM `3002` (rango académico 3001-3008, ver `DOCS`), agentes `8002`,
+Postgres `5434`. Nunca usar los puertos de producción de V1 (3000, 4000, 5433,
+5555, 6379), que están corriendo en el mismo Docker de la máquina.
 
 **Importante:** este proyecto usa **npm**, no pnpm. Existe un `pnpm-workspace.yaml`
 en `C:\Users\liand` que puede interferir con la instalación si se usa pnpm dentro

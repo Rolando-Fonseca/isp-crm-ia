@@ -39,10 +39,11 @@ enum MessageDirection {
 }
 
 model Message {
-  id        String           @id @default(cuid())
-  lead      Lead             @relation(fields: [leadId], references: [id])
-  leadId    String
-  direction MessageDirection
-  body      String
-  createdAt DateTime         @default(now())
+  id          String           @id @default(cuid())
+  lead        Lead             @relation(fields: [leadId], references: [id])
+  leadId      String
+  direction   MessageDirection
+  body        String
+  waMessageId String?          @unique
+  createdAt   DateTime         @default(now())
 }

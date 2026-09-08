@@ -33,9 +33,17 @@ flowchart LR
 - Dashboard de métricas (leads por etapa, tiempo de respuesta, conversión).
 - Expone API interna que el servicio de agentes consume (crear/actualizar lead, registrar interacción, consultar estado).
 
-### Servicio de Agentes ("Hermes", Python/FastAPI)
+### Servicio de Agentes ("Hermes", Python/FastAPI) — `agent-service/`
 - Recibe webhooks de WhatsApp Cloud API (mensajes entrantes, estados de entrega).
-- Pipeline de agentes:
+- Flujo implementado (v0.4.0):
+  1. `POST /webhook` valida la firma `X-Hub-Signature-256` con el app secret y
+     responde `200` de inmediato; el procesamiento sigue en segundo plano.
+  2. Por cada mensaje de texto llama a `POST /api/whatsapp/inbound` del CRM
+     (autenticado con `x-internal-api-key`), que crea el lead si no existe
+     (etapa Consulta, origen WhatsApp) y guarda el mensaje.
+  3. Responde por WhatsApp con un acuse y lo registra vía
+     `POST /api/whatsapp/outbound`. Sin token de Meta configurado, solo lo loguea.
+- Pipeline de agentes previsto:
   1. **Clasificador de intención** — consulta general, quiere aplicar, pregunta de visado, quiere hablar con un humano.
   2. **Lead scoring** — prioridad según país de interés, urgencia, señales de la conversación.
   3. **Respuesta con RAG** — responde usando la base de conocimiento de programas/universidades (pgvector).
