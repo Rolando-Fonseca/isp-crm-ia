@@ -12,7 +12,26 @@ matrícula).
 
 ## Estado
 
-`v0.1.0` — fase de planificación y documentación. Sin código de aplicación todavía.
+`v0.2.0-dev` — esqueleto del CRM en `crm-web/` (Next.js + Tailwind + Prisma),
+con pipeline de leads renderizado a partir de datos ficticios. Sin conexión a
+Postgres ni al canal de WhatsApp todavía.
+
+## Desarrollo local
+
+```bash
+cd crm-web
+npm install
+npm run dev
+```
+
+Abre [http://localhost:3002](http://localhost:3002). Puerto fijo `3002` (rango
+académico 3001-3008, ver `DOCS`), Postgres reservado en `5434` cuando se conecte
+la base de datos — nunca usar los puertos de producción de V1 (3000, 4000, 5433,
+5555, 6379).
+
+**Importante:** este proyecto usa **npm**, no pnpm. Existe un `pnpm-workspace.yaml`
+en `C:\Users\liand` que puede interferir con la instalación si se usa pnpm dentro
+de este árbol (mismo problema documentado en HappiTrip).
 
 ## Visión
 

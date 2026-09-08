@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LeadStage {
+  ENQUIRY
+  DOCUMENTATION
+  APPLICATION
+  VISA
+  ENROLLMENT
+}
+
+enum LeadSource {
+  WHATSAPP
+  MANUAL
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  phone     String     @unique
+  countryOfInterest String?
+  stage     LeadStage  @default(ENQUIRY)
+  source    LeadSource @default(MANUAL)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  messages  Message[]
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+model Message {
+  id        String           @id @default(cuid())
+  lead      Lead             @relation(fields: [leadId], references: [id])
+  leadId    String
+  direction MessageDirection
+  body      String
+  createdAt DateTime         @default(now())
+}
