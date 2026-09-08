@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { mockLeads } from "@/lib/mock-leads";
+import { prisma } from "@/lib/db";
 
-export default function Home() {
+export default async function Home() {
+  const leadCount = await prisma.lead.count();
+
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col items-start justify-center gap-6 p-8">
       <div>
@@ -13,7 +15,7 @@ export default function Home() {
       </div>
 
       <div className="rounded-lg bg-neutral-50 p-4 text-sm text-neutral-600 ring-1 ring-neutral-200">
-        {mockLeads.length} leads de ejemplo cargados (datos ficticios).
+        {leadCount} leads en la base de datos (Postgres local, datos de ejemplo).
       </div>
 
       <Link

@@ -12,22 +12,29 @@ matrícula).
 
 ## Estado
 
-`v0.2.0-dev` — esqueleto del CRM en `crm-web/` (Next.js + Tailwind + Prisma),
-con pipeline de leads renderizado a partir de datos ficticios. Sin conexión a
-Postgres ni al canal de WhatsApp todavía.
+`v0.3.0-dev` — CRM en `crm-web/` (Next.js + Tailwind + Prisma) conectado a
+Postgres local real vía Docker. Pipeline de leads leyendo y sembrado desde la
+base de datos. Falta el canal de WhatsApp.
 
 ## Desarrollo local
 
 ```bash
+# 1. Levantar Postgres local (puerto 5434, ver docker-compose.yml)
+docker compose up -d
+
+# 2. CRM
 cd crm-web
 npm install
+cp .env.example .env   # ya viene apuntando a localhost:5434
+npx prisma migrate dev  # crea las tablas
+npx prisma db seed      # carga leads de ejemplo
 npm run dev
 ```
 
 Abre [http://localhost:3002](http://localhost:3002). Puerto fijo `3002` (rango
-académico 3001-3008, ver `DOCS`), Postgres reservado en `5434` cuando se conecte
-la base de datos — nunca usar los puertos de producción de V1 (3000, 4000, 5433,
-5555, 6379).
+académico 3001-3008, ver `DOCS`). Postgres local en `5434` — nunca usar los
+puertos de producción de V1 (3000, 4000, 5433, 5555, 6379), que están corriendo
+en el mismo Docker de la máquina.
 
 **Importante:** este proyecto usa **npm**, no pnpm. Existe un `pnpm-workspace.yaml`
 en `C:\Users\liand` que puede interferir con la instalación si se usa pnpm dentro

@@ -1,16 +1,19 @@
-import { mockLeads, STAGES } from "@/lib/mock-leads";
+import { prisma } from "@/lib/db";
+import { STAGES } from "@/lib/stages";
 
-export default function LeadsPage() {
+export default async function LeadsPage() {
+  const leads = await prisma.lead.findMany({ orderBy: { createdAt: "asc" } });
+
   return (
     <main className="min-h-screen bg-neutral-50 p-8">
       <h1 className="text-2xl font-semibold text-neutral-900">Pipeline de leads</h1>
       <p className="mt-1 text-sm text-neutral-500">
-        Datos de ejemplo — sin conexión a base de datos todavía.
+        {leads.length} leads en base de datos (Postgres local).
       </p>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {STAGES.map((stage) => {
-          const leadsInStage = mockLeads.filter((lead) => lead.stage === stage.key);
+          const leadsInStage = leads.filter((lead) => lead.stage === stage.key);
           return (
             <div key={stage.key} className="rounded-lg bg-white p-3 shadow-sm ring-1 ring-neutral-200">
               <h2 className="flex items-center justify-between text-sm font-medium text-neutral-700">
