@@ -24,6 +24,31 @@ python scripts/send_test_message.py --phone 5491155550199 --name "Ana Pérez" --
 
 El lead aparece en `http://localhost:3002/leads` en la columna **Consulta**.
 
+## Probar con WhatsApp real
+
+Meta necesita una URL pública para entregar el webhook. En local se usa un túnel:
+
+```bash
+# 1. Agente corriendo en 8002 (ver arriba). En otra terminal:
+cloudflared tunnel --url http://localhost:8002
+# -> imprime una URL https://xxxx.trycloudflare.com (cambia en cada arranque)
+```
+
+2. En [developers.facebook.com](https://developers.facebook.com/), app de tipo
+   *Business* con el producto **WhatsApp**: copiar `Phone Number ID`, el token
+   temporal (24 h) y el `App Secret` (*Configuración → Básica*) a `.env`, junto
+   con un `META_WEBHOOK_VERIFY_TOKEN` propio. Añadir tu celular como
+   **destinatario de prueba** (el número de prueba solo escribe a números
+   verificados).
+3. *WhatsApp → Configuración → Webhook*: URL `https://xxxx.trycloudflare.com/webhook`,
+   tu verify token, y suscribirse al campo `messages`. Meta hace un `GET` de
+   verificación que el servicio responde.
+4. Escribir al número de prueba desde el celular: el lead aparece en el CRM, se
+   clasifica y la respuesta llega por WhatsApp.
+
+Instalación del túnel en Windows: `winget install Cloudflare.cloudflared`.
+Detalles y limitaciones de la Cloud API en `../DOCS/02-whatsapp-cloud-api.md`.
+
 ## Tests
 
 ```bash
