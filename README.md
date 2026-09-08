@@ -83,7 +83,10 @@ Detalle completo en [`DOCS/01-arquitectura.md`](DOCS/01-arquitectura.md).
 - [`DOCS/02-whatsapp-cloud-api.md`](DOCS/02-whatsapp-cloud-api.md) — integración con Meta WhatsApp Cloud API.
 - [`DOCS/03-mvp-scope.md`](DOCS/03-mvp-scope.md) — alcance propuesto del MVP (borrador, pendiente de validar).
 - [`DOCS/04-roadmap.md`](DOCS/04-roadmap.md) — hoja de ruta por versiones (SemVer desde 0.1.0).
-- [`Workshop 4  y 8 CRM.txt`](Workshop%204%20%20y%208%20CRM.txt) — notas originales de Codeiando que inspiran el diseño (Hermes, Git Flow, Predict, Red Team).
+
+El diseño se inspira en los Workshops 4 y 8 de Codeiando (arquitectura multiagente
+tipo Hermes, Git Flow protegido, debate "Predict" y auditoría Red Team antes de
+codificar).
 
 ## Flujo de trabajo (Git Flow)
 

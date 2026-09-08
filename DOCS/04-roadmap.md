@@ -13,8 +13,8 @@
 | `1.0.0` | Release estable: pipeline completo + agente + human-in-the-loop, desplegado en EasyPanel. | |
 
 Cada versión minor pasa antes por: research/auditoría → debate multiagente tipo
-"Predict" → auditoría Red Team, siguiendo la metodología documentada en
-`Workshop 4 y 8 CRM.txt`.
+"Predict" → auditoría Red Team, siguiendo la metodología de los Workshops 4 y 8
+de Codeiando.
 
 ## Decisiones tomadas por el camino
 
