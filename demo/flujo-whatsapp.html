@@ -1,0 +1,727 @@
+<title>Asistente WhatsApp · Tu Red en España</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+  :root {
+    --primary: #0F4C81;
+    --primary-hover: #0A355C;
+    --primary-light: #EBF3FA;
+    --secondary: #E05638;
+    --secondary-light: #FDF2F0;
+    --accent: #10B981;
+    --accent-light: #ECFDF5;
+    --accent-ink: #047857;
+    --background: #F8FAFC;
+    --surface: #FFFFFF;
+    --ink: #0F172A;
+    --ink-muted: #475569;
+    --line: rgba(226, 232, 240, 0.8);
+    --wa-canvas: #EFEAE2;
+    --wa-header: #075E54;
+    --wa-out: #D9FDD3;
+    --wa-in: #FFFFFF;
+    --wa-link: #027EB5;
+    --font-display: "Lexend", "Segoe UI", system-ui, sans-serif;
+    --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .app { max-width: 1180px; margin: 0 auto; padding: 28px 24px 48px; }
+  header.top {
+    display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    font-family: var(--font-display); font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--secondary);
+  }
+  h1 {
+    font-family: var(--font-display); font-weight: 600; font-size: 1.75rem; line-height: 1.2;
+    margin: 6px 0 8px; text-wrap: balance;
+  }
+  header.top p { margin: 0; max-width: 62ch; color: var(--ink-muted); }
+  .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .controls label {
+    display: flex; gap: 8px; align-items: center; font-family: var(--font-display); font-size: 13px; font-weight: 500;
+    color: var(--ink-muted);
+  }
+  select, button.ghost {
+    font-family: var(--font-body); font-size: 15px; padding: 9px 12px; border-radius: 10px;
+    border: 1px solid #CBD5E1; background: var(--surface); color: var(--ink); cursor: pointer;
+    transition: border-color 200ms, background 200ms;
+  }
+  select:hover, button.ghost:hover { border-color: var(--primary); background: var(--primary-light); }
+  select:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--primary); outline-offset: 2px;
+  }
+
+  .grid { display: grid; grid-template-columns: 384px minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Teléfono */
+  .phone {
+    background: var(--ink); border-radius: 28px; padding: 10px; box-shadow: 0 24px 48px -24px rgba(15, 23, 42, 0.5);
+  }
+  .screen {
+    background: var(--wa-canvas); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column;
+    height: 720px;
+  }
+  .wa-header {
+    background: var(--wa-header); color: #fff; padding: 12px 14px; display: flex; gap: 12px; align-items: center;
+  }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--surface); display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 600; font-size: 13px; color: var(--primary); flex-shrink: 0;
+  }
+  .wa-header .who { line-height: 1.2; min-width: 0; }
+  .wa-header .name { font-weight: 600; font-size: 15px; }
+  .wa-header .status { font-size: 12px; opacity: 0.85; }
+  .chat { flex: 1; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 6px; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { .chat { scroll-behavior: auto; } }
+  .day {
+    align-self: center; background: rgba(255,255,255,0.85); color: var(--ink-muted); font-size: 12px;
+    padding: 4px 10px; border-radius: 8px; margin-bottom: 6px;
+  }
+  .msg { max-width: 86%; display: flex; flex-direction: column; gap: 6px; }
+  .msg.in { align-self: flex-start; }
+  .msg.out { align-self: flex-end; }
+  .bubble {
+    padding: 8px 10px 6px; border-radius: 10px; font-size: 14.5px; line-height: 1.4; position: relative;
+    box-shadow: 0 1px 0.5px rgba(15, 23, 42, 0.13); white-space: pre-line; overflow-wrap: anywhere;
+  }
+  .in .bubble { background: var(--wa-in); border-top-left-radius: 2px; }
+  .out .bubble { background: var(--wa-out); border-top-right-radius: 2px; }
+  .bubble .meta {
+    display: block; text-align: right; font-size: 11px; color: var(--ink-muted); margin-top: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .bubble a { color: var(--wa-link); text-decoration: none; }
+  .bubble .foot { display: block; font-size: 12px; color: var(--ink-muted); margin-top: 6px; }
+  .quick { display: flex; flex-direction: column; gap: 4px; }
+  .quick button, .list-open {
+    font-family: var(--font-body); font-size: 14.5px; font-weight: 600; color: var(--wa-link);
+    background: var(--wa-in); border: 0; border-radius: 10px; padding: 9px 10px; cursor: pointer;
+    box-shadow: 0 1px 0.5px rgba(15, 23, 42, 0.13); transition: background 150ms;
+  }
+  .quick button:hover, .list-open:hover { background: #F1F5F9; }
+  .quick button:disabled, .list-open:disabled { color: #94A3B8; cursor: default; background: var(--wa-in); }
+  .sheet {
+    background: var(--wa-in); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -12px rgba(15, 23, 42, 0.4);
+    align-self: stretch;
+  }
+  .sheet .sheet-title {
+    font-family: var(--font-display); font-weight: 500; font-size: 13px; padding: 10px 12px; color: var(--ink-muted);
+    border-bottom: 1px solid var(--line);
+  }
+  .sheet button {
+    display: block; width: 100%; text-align: left; font-family: var(--font-body); font-size: 14.5px; color: var(--ink);
+    background: transparent; border: 0; border-bottom: 1px solid var(--line); padding: 10px 12px; cursor: pointer;
+  }
+  .sheet button:last-child { border-bottom: 0; }
+  .sheet button:hover { background: var(--primary-light); }
+  .sheet button small { display: block; color: var(--ink-muted); font-size: 12.5px; }
+  .typing { align-self: flex-start; background: var(--wa-in); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: var(--ink-muted); }
+  .composer { display: flex; gap: 8px; padding: 10px; background: #F0F2F5; }
+  .composer input {
+    flex: 1; min-width: 0; font-family: var(--font-body); font-size: 15px; padding: 10px 14px; border-radius: 20px;
+    border: 1px solid #CBD5E1; background: var(--surface); color: var(--ink);
+  }
+  .composer button {
+    width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--wa-header); color: #fff; cursor: pointer;
+    font-family: var(--font-display); font-weight: 600; font-size: 12px; transition: filter 150ms;
+  }
+  .composer button:hover { filter: brightness(1.1); }
+  .hint { font-size: 13px; color: var(--ink-muted); margin: 10px 4px 0; text-align: center; }
+
+  /* CRM */
+  .crm { display: flex; flex-direction: column; gap: 20px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px;
+  }
+  .card h2 {
+    font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; margin: 0 0 4px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .card h2 .sub { font-family: var(--font-body); font-weight: 400; font-size: 13px; color: var(--ink-muted); }
+  .lead-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-top: 12px; }
+  .lead-name { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+  .lead-phone { color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    border-radius: 999px; padding: 3px 10px; font-size: 12.5px; font-family: var(--font-display); font-weight: 500;
+    background: #F1F5F9; color: var(--ink-muted);
+  }
+  .chip.info { background: var(--primary-light); color: var(--primary); }
+  .chip.warn { background: #FEF3C7; color: #92400E; }
+  .chip.ok { background: var(--accent-light); color: var(--accent-ink); }
+  dl.facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 16px 0 0; font-size: 15px; }
+  dl.facts dt { color: var(--ink-muted); }
+  dl.facts dd { margin: 0; }
+  .answers { margin: 14px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .answers li { border-left: 3px solid var(--primary-light); padding-left: 12px; }
+  .answers .svc { font-family: var(--font-display); font-weight: 500; font-size: 14px; color: var(--primary); }
+  .answers .qa { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; font-size: 14.5px; margin-top: 4px; }
+  .answers .qa span:nth-child(odd) { color: var(--ink-muted); }
+  .empty { color: var(--ink-muted); font-style: italic; font-size: 14.5px; margin-top: 12px; }
+  .score { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+  .score .num {
+    font-family: var(--font-display); font-weight: 600; font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums;
+    min-width: 2.2ch;
+  }
+  .bar { flex: 1; height: 8px; border-radius: 4px; background: #E2E8F0; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 300ms; }
+  .score small { display: block; color: var(--ink-muted); font-size: 13px; }
+  .next { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--secondary-light); font-size: 14.5px; }
+  .next strong { color: var(--secondary); font-family: var(--font-display); font-weight: 500; }
+
+  .log { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; }
+  .log li {
+    display: grid; grid-template-columns: 56px 1fr; gap: 10px; font-size: 13.5px; align-items: baseline;
+    font-variant-numeric: tabular-nums;
+  }
+  .log .t { color: #94A3B8; font-size: 12px; }
+  .log .k { font-family: var(--font-display); font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 6px; }
+  .log .in .k { color: var(--primary); }
+  .log .out .k { color: var(--accent-ink); }
+  .log .sys .k { color: var(--secondary); }
+  .log code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12.5px; background: #F1F5F9; padding: 1px 5px; border-radius: 4px; }
+  .note { font-size: 13.5px; color: var(--ink-muted); margin: 10px 0 0; }
+</style>
+
+<div class="app">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Demo interactiva · datos de ejemplo</div>
+      <h1>Cómo atendería el asistente de WhatsApp a un estudiante</h1>
+      <p>Escribe como si fueras el estudiante. Las preguntas son las de los formularios de cada servicio de Tu Red en España. A la derecha, lo que recibe el asesor comercial en el CRM y lo que ocurre entre WhatsApp y el sistema.</p>
+    </div>
+    <div class="controls">
+      <label>Proveedor
+        <select id="provider" aria-label="Proveedor de mensajería">
+          <option value="meta">Meta Cloud API directa</option>
+          <option value="zernio">Zernio (pasarela)</option>
+        </select>
+      </label>
+      <button class="ghost" id="reset" type="button">Reiniciar conversación</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="phone" aria-label="Simulación de WhatsApp">
+      <div class="screen">
+        <div class="wa-header">
+          <div class="avatar" aria-hidden="true">TR</div>
+          <div class="who">
+            <div class="name">Tu Red en España</div>
+            <div class="status">Cuenta de empresa · asistente virtual</div>
+          </div>
+        </div>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <form class="composer" id="composer">
+          <input id="input" type="text" placeholder="Escribe un mensaje" autocomplete="off" aria-label="Mensaje">
+          <button type="submit" aria-label="Enviar">Env.</button>
+        </form>
+      </div>
+      <p class="hint" id="hint">Empieza escribiendo «Hola» — el estudiante siempre inicia la conversación. Para ver la llamada: elige un servicio, «Ya estoy en España», «Menos de 30 días».</p>
+    </section>
+
+    <aside class="crm">
+      <div class="card" id="lead">
+        <h2>Ficha del lead en el CRM <span class="sub">lo que ve el asesor</span></h2>
+        <div class="lead-head">
+          <div>
+            <div class="lead-name" id="lead-name">—</div>
+            <div class="lead-phone">+57 300 555 0777 · origen WhatsApp</div>
+          </div>
+          <div class="chips" id="chips"><span class="chip">Sin conversación</span></div>
+        </div>
+        <dl class="facts">
+          <dt>Etapa</dt><dd>Consulta</dd>
+          <dt>Consentimiento</dt><dd id="consent">—</dd>
+          <dt>Servicios</dt><dd id="services">—</dd>
+          <dt>Situación</dt><dd id="situation">—</dd>
+          <dt>Llamada</dt><dd id="call">—</dd>
+          <dt>Asesor sugerido</dt><dd id="advisor">Se asigna al elegir servicio</dd>
+        </dl>
+        <ul class="answers" id="answers"></ul>
+        <p class="empty" id="answers-empty">Todavía no hay respuestas del formulario.</p>
+        <div class="score">
+          <div class="num" id="score">0</div>
+          <div style="flex:1">
+            <div class="bar"><i id="score-bar"></i></div>
+            <small id="score-label">Puntuación por reglas (0-100). A partir de 50 es candidato a calificar.</small>
+          </div>
+        </div>
+        <div class="next" id="next" hidden></div>
+      </div>
+
+      <div class="card">
+        <h2>Entre WhatsApp y el sistema <span class="sub" id="provider-sub">webhook firmado por Meta</span></h2>
+        <ul class="log" id="log"></ul>
+        <p class="note" id="provider-note">El guion no cambia con el proveedor: solo cambian la firma del webhook y quién gestiona plantillas y ventana de 24 h.</p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function () {
+  const STUDENT = { name: "Ana Pérez", first: "Ana" };
+  const CITIES = ["Madrid", "Barcelona", "Valencia", "Sevilla", "Málaga", "Todavía no lo sé", "Otra ciudad"];
+  const NIVEL = ["Secundaria / Bachillerato", "Formación profesional", "Grado universitario", "Posgrado o máster", "Otro"];
+  const NOTAS = { id: "¿Algo más que debamos saber?", text: "¿Algo más que debamos saber? Cuéntanos lo que creas que nos ayuda a orientarte mejor.", type: "text", skip: "Nada más por ahora" };
+
+  // Consentimiento: el mismo literal que el formulario web, con su versión, para que
+  // el registro de auditoría sea el mismo en los dos canales.
+  const CONSENT_VERSION = "v1.0";
+  const CONSENT_TEXT = "Al continuar confirmas que has leído y aceptas la Política de Privacidad (tured.es/politica-privacidad) y consientes el tratamiento de tus datos para gestionar tu solicitud.";
+
+  // Preguntas = formularios de servicio de Tu Red en España (una fuente, dos canales).
+  // "intro" es el texto de cuidado: qué hace y qué no hace cada servicio.
+  const SERVICES = {
+    academica: {
+      label: "Aún no sabes qué estudiar", desc: "Asesoría académica", advisor: "Laura M.",
+      intro: "Un asesor académico te orientará sobre programas y centros según tu perfil. La admisión la decide cada centro.",
+      complements: ["seguro", "alojamiento", "juridica"],
+      questions: [
+        { id: "Nivel de estudios", text: "¿Cuál es tu nivel de estudios?", type: "list", options: NIVEL },
+        { id: "Experiencia laboral demostrable", text: "¿Tienes experiencia laboral demostrable?", type: "buttons", options: ["Sí", "No"] },
+        { id: "Ciudad donde quieres estudiar", text: "¿En qué ciudad quieres estudiar?", type: "list", options: CITIES },
+        NOTAS,
+      ],
+    },
+    seguro: {
+      label: "Seguro médico", desc: "Para el visado y la estancia", advisor: "Diego R.",
+      intro: "Tu solicitud la revisa un proveedor de seguro médico colaborador, que te indicará coberturas y condiciones. Por aquí no confirmamos coberturas.",
+      complements: ["alojamiento", "juridica"],
+      questions: [
+        { id: "Rango de edad", text: "¿En qué rango de edad estás?", type: "list", options: ["18 – 25 años", "26 – 35 años", "36 – 45 años", "46 años o más"] },
+        NOTAS,
+      ],
+    },
+    alojamiento: {
+      label: "Alojamiento", desc: "Habitación, piso o residencia", advisor: "Diego R.",
+      intro: "Compartimos tu solicitud con proveedores de alojamiento colaboradores. La disponibilidad y las condiciones las confirma cada proveedor.",
+      complements: ["seguro", "juridica"],
+      questions: [
+        { id: "Cuántas personas sois", text: "¿Cuántas personas sois?", type: "buttons", options: ["1", "2", "3 o más"] },
+        { id: "Mascota", text: "¿Tienes mascota?", type: "buttons", options: ["Sí", "No"] },
+        { id: "Ciudad", text: "¿En qué ciudad buscas?", type: "list", options: CITIES },
+        NOTAS,
+      ],
+    },
+    juridica: {
+      label: "Asesoría jurídica", desc: "Extranjería y trámites", advisor: "Marta S.",
+      intro: "Tu caso lo revisa un despacho o asesoría jurídica colaborador. Por este canal no podemos darte indicaciones legales ni plazos: eso te lo dirá el profesional.",
+      complements: ["seguro"],
+      questions: [
+        { id: "Trámite", text: "¿En qué trámite necesitas ayuda?", type: "list", options: ["Visado de estudios", "NIE / TIE", "Renovación", "Reagrupación familiar", "Homologación de título", "Otro trámite"] },
+        NOTAS,
+      ],
+    },
+    laboral: {
+      label: "Inserción laboral", desc: "Empleo compatible con estudios", advisor: "Marta S.",
+      intro: "Pasamos tu contacto a agencias de inserción laboral colaboradoras. No podemos garantizar una oferta; ellas te indicarán qué opciones encajan con tu permiso.",
+      complements: ["juridica", "alojamiento"],
+      questions: [
+        { id: "Nivel de estudios", text: "¿Cuál es tu nivel de estudios?", type: "list", options: NIVEL },
+        NOTAS,
+      ],
+    },
+  };
+  const ORDER = ["academica", "seguro", "alojamiento", "juridica", "laboral"];
+
+  const chat = document.getElementById("chat");
+  const input = document.getElementById("input");
+  const hint = document.getElementById("hint");
+  const logEl = document.getElementById("log");
+  const providerSel = document.getElementById("provider");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let state;
+  let pending = null;
+
+  function reset() {
+    state = {
+      phase: "start", service: null, qIndex: 0, services: [], answers: {},
+      situation: null, situationDetail: null, situationAsked: false,
+      call: null, needsHuman: false, leadId: null, closed: false, consentAt: null,
+    };
+    pending = null;
+    chat.innerHTML = '<div class="day">Hoy</div>';
+    logEl.innerHTML = "";
+    input.disabled = false;
+    input.value = "";
+    renderCRM();
+  }
+
+  const now = () => new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+  const delay = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const short = (s, n) => esc(s.length > n ? s.slice(0, n) + "…" : s);
+
+  function log(kind, html) {
+    const li = document.createElement("li");
+    li.className = kind;
+    const label = { in: "entra", out: "sale", sys: "sistema" }[kind];
+    li.innerHTML = `<span class="t">${now()}</span><span><span class="k">${label}</span>${html}</span>`;
+    logEl.appendChild(li);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  const signatureLabel = () => providerSel.value === "zernio" ? "<code>X-Zernio-Signature</code>" : "<code>X-Hub-Signature-256</code>";
+
+  function userBubble(text) {
+    const m = document.createElement("div");
+    m.className = "msg out";
+    m.innerHTML = `<div class="bubble">${esc(text)}<span class="meta">${now()} ✓✓</span></div>`;
+    chat.appendChild(m);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  async function botBubble(text, opts = {}) {
+    const typing = document.createElement("div");
+    typing.className = "typing";
+    typing.textContent = "escribiendo…";
+    chat.appendChild(typing);
+    chat.scrollTop = chat.scrollHeight;
+    await delay(opts.fast ? 250 : 650);
+    typing.remove();
+
+    const m = document.createElement("div");
+    m.className = "msg in";
+    let inner = esc(text).replace(/tured\.es\/politica-privacidad/g, '<a href="#" onclick="return false">tured.es/politica-privacidad</a>');
+    if (opts.footer) inner += `<span class="foot">${esc(opts.footer)}</span>`;
+    m.innerHTML = `<div class="bubble">${inner}<span class="meta">${now()}</span></div>`;
+
+    if (opts.buttons) {
+      const q = document.createElement("div");
+      q.className = "quick";
+      opts.buttons.forEach((label) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = label;
+        b.addEventListener("click", () => {
+          q.querySelectorAll("button").forEach((x) => (x.disabled = true));
+          answer(label, "button_reply", label);
+        });
+        q.appendChild(b);
+      });
+      m.appendChild(q);
+      log("out", `envía <code>interactive.button</code> «${short(text, 40)}» · ${opts.buttons.length} ${opts.buttons.length === 1 ? "botón" : "botones"}`);
+    } else if (opts.list) {
+      const open = document.createElement("button");
+      open.type = "button";
+      open.className = "list-open";
+      open.textContent = opts.listButton || "Ver opciones";
+      const sheet = document.createElement("div");
+      sheet.className = "sheet";
+      sheet.hidden = true;
+      sheet.innerHTML = `<div class="sheet-title">${esc(opts.listTitle || "Elige una opción")}</div>`;
+      opts.list.forEach((row) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.innerHTML = esc(row.title) + (row.desc ? `<small>${esc(row.desc)}</small>` : "");
+        b.addEventListener("click", () => {
+          sheet.remove();
+          open.disabled = true;
+          answer(row.title, "list_reply", row.id);
+        });
+        sheet.appendChild(b);
+      });
+      open.addEventListener("click", () => { sheet.hidden = !sheet.hidden; chat.scrollTop = chat.scrollHeight; });
+      m.appendChild(open);
+      m.appendChild(sheet);
+      log("out", `envía <code>interactive.list</code> «${short(text, 40)}» · ${opts.list.length} filas`);
+    } else {
+      log("out", `envía <code>text</code> «${short(text, 48)}»`);
+    }
+    chat.appendChild(m);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  // ---- Calendario (simulado): próximos 3 días hábiles, 3 huecos de 20 min ----
+  function slots() {
+    const days = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+    const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    const out = [];
+    const d = new Date();
+    while (out.length < 9) {
+      d.setDate(d.getDate() + 1);
+      if (d.getDay() === 0 || d.getDay() === 6) continue;
+      ["10:00", "12:30", "17:00"].forEach((h) => {
+        out.push({ id: `${d.toISOString().slice(0, 10)} ${h}`, title: `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} · ${h}`, desc: "15-20 min · hora de España" });
+      });
+    }
+    return out;
+  }
+
+  // ---- Guion ----
+  function serviceRows(exclude, preferred) {
+    const ids = [...preferred.filter((id) => !exclude.includes(id)), ...ORDER.filter((id) => !exclude.includes(id) && !preferred.includes(id))];
+    return ids.map((id) => ({ id, title: SERVICES[id].label, desc: SERVICES[id].desc }));
+  }
+
+  async function start() {
+    state.phase = "menu";
+    state.leadId = "cmt" + Math.random().toString(36).slice(2, 8);
+    log("sys", `CRM <code>POST /api/whatsapp/inbound</code> → lead <code>${state.leadId}</code> creado (nuevo)`);
+    renderCRM();
+    await botBubble(`Hola ${STUDENT.first}, bienvenida a Tu Red en España.`, { fast: true });
+    await botBubble(`Soy el asistente virtual de Tu Red en España. Te haré unas preguntas rápidas para que tu asesor te contacte con todo listo.\n${CONSENT_TEXT}`);
+    await askMenu("¿Con qué necesitas ayuda? Si es más de una cosa, empezamos por una y luego añadimos las demás.", []);
+  }
+
+  async function askMenu(text, preferred) {
+    pending = { type: "menu" };
+    await botBubble(text, { list: serviceRows(state.services, preferred), listButton: "Ver servicios", listTitle: "Servicios de Tu Red en España", footer: "Elige uno para continuar" });
+  }
+
+  async function askSituation() {
+    pending = { type: "situation" };
+    await botBubble("¿En qué punto estás?", { buttons: ["Aún no he viajado", "Ya estoy en España"] });
+  }
+
+  async function askQuestion() {
+    const svc = SERVICES[state.service];
+    const q = svc.questions[state.qIndex];
+    if (!q) return afterService();
+    pending = { type: q.type };
+    if (q.type === "buttons") await botBubble(q.text, { buttons: q.options });
+    else if (q.type === "list") await botBubble(q.text, { list: q.options.map((o) => ({ id: o, title: o })), listTitle: q.id });
+    else await botBubble(q.text, q.skip ? { buttons: [q.skip] } : {});
+  }
+
+  async function afterService() {
+    pending = { type: "more" };
+    await botBubble("Anotado. ¿Necesitas ayuda con algo más?", { buttons: ["Sí, otro servicio", "No, eso es todo"] });
+  }
+
+  async function close() {
+    state.phase = "done";
+    state.closed = true;
+    state.needsHuman = true;
+    pending = null;
+    const advisor = SERVICES[state.services[0]].advisor;
+    log("sys", `CRM <code>POST /api/whatsapp/classification</code> → <code>needsHuman=true</code>, asesor sugerido ${esc(advisor)}`);
+    renderCRM();
+    const summary = state.services.map((id) => {
+      const a = state.answers[id] || {};
+      return `• ${SERVICES[id].label}: ${Object.values(a).join(" · ")}`;
+    }).join("\n");
+    if (state.call) {
+      await botBubble(`Listo, ${STUDENT.first}. ${advisor} ya tiene esto:\n${summary}\n\nNos vemos en la llamada del ${state.call.title} (hora de España). Te enviaremos un recordatorio por aquí. Gracias por escribirnos.`);
+      log("sys", `Plantilla de recordatorio (<code>utility</code>) programada para 2 h antes de la llamada`);
+    } else {
+      await botBubble(`Listo, ${STUDENT.first}. Esto es lo que le paso a ${advisor}:\n${summary}\n\n${advisor} te escribirá por este WhatsApp en menos de 24 horas (días hábiles). Gracias por escribirnos.`);
+    }
+    hint.textContent = "Conversación cerrada. Reiníciala para probar otro camino, o escribe algo para ver cómo reacciona.";
+  }
+
+  // Clasificador simulado para texto fuera de guion
+  function classify(text) {
+    const t = text.toLowerCase();
+    if (/asesor|persona|humano|llamar|llámame|hablar con alguien/.test(t)) return { intent: "hablar_con_humano", confidence: 0.95 };
+    if (/visado|visa|nie|tie|renovar|renovaci|reagrupa|homolog|abogad|legal|permiso|residencia/.test(t)) return { intent: "consulta_legal", confidence: 0.9 };
+    if (/precio|cuesta|cuánto|cuanto|cobertura|garant/.test(t)) return { intent: "consulta_general", confidence: 0.8 };
+    if (/hola|buenas|buenos/.test(t) && t.length < 25) return { intent: "otro", confidence: 0.9 };
+    return { intent: "otro", confidence: 0.45 };
+  }
+
+  function storeAnswer(label) {
+    const q = SERVICES[state.service].questions[state.qIndex];
+    state.answers[state.service][q.id] = label === q.skip ? "Sin notas" : label;
+    state.qIndex += 1;
+    log("sys", `CRM lead ← ${esc(q.id)}: «${short(label, 40)}»`);
+    renderCRM();
+  }
+
+  async function answer(label, kind, id) {
+    userBubble(label);
+    log("in", `<code>POST /webhook</code> <code>${kind}</code> «${esc(label)}» · firma ${signatureLabel()} verificada`);
+    if (state.closed || !pending) return;
+
+    switch (pending.type) {
+      case "menu": {
+        state.service = id; state.qIndex = 0; state.services.push(id); state.answers[id] = {}; state.phase = "questions";
+        log("sys", `CRM lead <code>${state.leadId}</code> ← servicio ${esc(SERVICES[id].label)} · asesor sugerido ${esc(SERVICES[id].advisor)}`);
+        renderCRM();
+        await botBubble(SERVICES[id].intro, { fast: true });
+        if (!state.situationAsked) return askSituation();
+        return askQuestion();
+      }
+      case "situation": {
+        state.situationAsked = true;
+        state.situation = label;
+        log("sys", `CRM lead ← ¿En qué punto estás?: «${esc(label)}»`);
+        renderCRM();
+        if (label === "Ya estoy en España") {
+          pending = { type: "arrival" };
+          return botBubble("¿Desde cuándo estás en España?", { buttons: ["Menos de 30 días", "1 a 3 meses", "Más de 3 meses"] });
+        }
+        pending = { type: "travel" };
+        return botBubble("¿Cuándo tienes previsto viajar?", { buttons: ["En menos de 3 meses", "En 3 a 6 meses", "Más adelante / no lo sé"] });
+      }
+      case "travel": {
+        state.situationDetail = label;
+        log("sys", `CRM lead ← Fecha estimada de viaje: «${esc(label)}»`);
+        renderCRM();
+        return askQuestion();
+      }
+      case "arrival": {
+        state.situationDetail = label;
+        log("sys", `CRM lead ← Desde cuándo en España: «${esc(label)}»`);
+        renderCRM();
+        if (label === "Menos de 30 días") {
+          pending = { type: "calloffer" };
+          log("sys", `Regla: en España < 30 días → ofrecer llamada de orientación (15-20 min)`);
+          return botBubble(`Como acabas de llegar, lo más útil suele ser una llamada corta de 15-20 minutos con ${SERVICES[state.service].advisor} para orientarte sobre programas y la estancia por estudios. ¿La agendamos?`, { buttons: ["Sí, agendar llamada", "Prefiero seguir por aquí"], footer: "Sin compromiso; puedes cambiarla después" });
+        }
+        return askQuestion();
+      }
+      case "calloffer": {
+        if (label.startsWith("Sí")) {
+          pending = { type: "slot" };
+          log("sys", `Calendario: consulta huecos libres de ${esc(SERVICES[state.service].advisor)} (próximos 3 días hábiles)`);
+          return botBubble("Elige el hueco que mejor te venga. Son 15-20 minutos, en hora de España.", { list: slots(), listButton: "Ver horarios", listTitle: `Llamada con ${SERVICES[state.service].advisor}` });
+        }
+        return askQuestion();
+      }
+      case "slot": {
+        state.call = { id, title: label, advisor: SERVICES[state.service].advisor };
+        log("sys", `Calendario: bloque de 20 min reservado con ${esc(state.call.advisor)} · ${esc(label)}`);
+        log("sys", `CRM lead ← llamada agendada ${esc(label)}`);
+        renderCRM();
+        await botBubble(`Reservado: ${label} con ${state.call.advisor} — te llamaremos a este número.\nMientras tanto, un par de datos para preparar la llamada:`, { fast: true });
+        return askQuestion();
+      }
+      case "more": {
+        if (label.startsWith("Sí")) {
+          state.phase = "menu";
+          return askMenu("Estos suelen ir juntos. ¿Cuál añadimos?", SERVICES[state.service].complements);
+        }
+        return close();
+      }
+      default: {
+        if (state.phase === "questions") { storeAnswer(label); return askQuestion(); }
+      }
+    }
+  }
+
+  async function freeText(text) {
+    userBubble(text);
+    log("in", `<code>POST /webhook</code> <code>text</code> «${short(text, 40)}» · firma ${signatureLabel()} verificada`);
+
+    if (state.phase === "start") {
+      state.consentAt = now();
+      log("sys", `CRM ← consentimiento ${CONSENT_VERSION} registrado (texto literal + marca de tiempo) al continuar`);
+      return start();
+    }
+    if (state.closed) return botBubble("Tu asesor ya tiene tu consulta y te escribirá pronto por aquí.", { fast: true });
+    if (pending && pending.type === "text" && state.phase === "questions") { storeAnswer(text); return askQuestion(); }
+
+    const c = classify(text);
+    log("sys", `Clasificador Claude: <code>${c.intent}</code> confianza ${c.confidence.toFixed(2)}`);
+    if (c.intent === "hablar_con_humano" || c.confidence < 0.6) {
+      state.needsHuman = true;
+      log("sys", `CRM <code>classification</code> → <code>needsHuman=true</code> (${c.intent === "hablar_con_humano" ? "lo pidió" : "confianza baja"})`);
+      renderCRM();
+      if (state.services.length === 0) { state.services.push("academica"); state.answers.academica = {}; }
+      return close();
+    }
+    if (c.intent === "consulta_legal") {
+      await botBubble("Eso tiene que verlo un profesional: por este canal no podemos darte indicaciones sobre trámites ni plazos. Lo anoto para que la asesoría jurídica colaboradora lo revise contigo. Sigamos:", { fast: true });
+      log("sys", `CRM lead ← nota: consulta legal fuera de guion, para el despacho colaborador`);
+    } else {
+      await botBubble("Eso te lo confirma tu asesor con datos exactos, para no darte información a medias. Sigamos:", { fast: true });
+    }
+    if (pending && pending.type === "menu") return askMenu("¿Con qué necesitas ayuda?", []);
+    if (pending && pending.type === "situation") return askSituation();
+    if (pending && ["arrival", "travel", "calloffer", "slot", "more"].includes(pending.type)) return askQuestion();
+    return askQuestion();
+  }
+
+  // ---- CRM ----
+  function score() {
+    let s = 0;
+    Object.values(state.answers).forEach((a) => { s += Object.values(a).filter((v) => v !== "Sin notas").length * 15; });
+    if (state.situationDetail === "Menos de 30 días") s += 25;
+    if (state.situationDetail === "En menos de 3 meses") s += 10;
+    if (state.call) s += 15;
+    return Math.min(100, s);
+  }
+
+  function renderCRM() {
+    document.getElementById("lead-name").textContent = state.leadId ? STUDENT.name : "—";
+    const chips = document.getElementById("chips");
+    chips.innerHTML = "";
+    const add = (cls, txt) => { const s = document.createElement("span"); s.className = "chip " + cls; s.textContent = txt; chips.appendChild(s); };
+    if (!state.leadId) add("", "Sin conversación");
+    else {
+      add("info", state.closed ? "Formulario completado" : "En conversación");
+      if (state.call) add("ok", "Llamada agendada");
+      if (state.needsHuman) add("warn", "Necesita asesor");
+    }
+    document.getElementById("consent").textContent = state.consentAt ? `Política de privacidad ${CONSENT_VERSION} · ${state.consentAt}` : "—";
+    document.getElementById("services").textContent = state.services.length ? state.services.map((id) => SERVICES[id].label).join(", ") : "—";
+    document.getElementById("situation").textContent = state.situation ? state.situation + (state.situationDetail ? ` · ${state.situationDetail}` : "") : "—";
+    document.getElementById("call").textContent = state.call ? `${state.call.title} con ${state.call.advisor} · 15-20 min` : "—";
+    document.getElementById("advisor").textContent = state.services.length ? SERVICES[state.services[0]].advisor + " (por tipo de servicio)" : "Se asigna al elegir servicio";
+
+    const ul = document.getElementById("answers");
+    ul.innerHTML = "";
+    let any = false;
+    state.services.forEach((id) => {
+      const a = state.answers[id] || {};
+      if (!Object.keys(a).length) return;
+      any = true;
+      const li = document.createElement("li");
+      li.innerHTML = `<div class="svc">${esc(SERVICES[id].label)}</div><div class="qa">${Object.entries(a).map(([k, v]) => `<span>${esc(k)}</span><span>${esc(v)}</span>`).join("")}</div>`;
+      ul.appendChild(li);
+    });
+    document.getElementById("answers-empty").hidden = any;
+
+    const s = score();
+    document.getElementById("score").textContent = s;
+    document.getElementById("score-bar").style.width = s + "%";
+    document.getElementById("score-label").textContent = s >= 50 ? "Candidato a calificar: el asesor confirma el paso a Calificado." : "Puntuación por reglas (0-100). A partir de 50 es candidato a calificar.";
+
+    const next = document.getElementById("next");
+    if (state.closed) {
+      const advisor = SERVICES[state.services[0]].advisor;
+      next.hidden = false;
+      next.innerHTML = state.call
+        ? `<strong>Próximo paso</strong> · ${esc(advisor)} llama el ${esc(state.call.title)} (15-20 min) y marca el lead como <em>Contactado</em>. El asistente no cambia la etapa.`
+        : `<strong>Próximo paso</strong> · ${esc(advisor)} contacta por WhatsApp en menos de 24 h y marca el lead como <em>Contactado</em>. El asistente no cambia la etapa.`;
+    } else next.hidden = true;
+  }
+
+  // ---- Eventos ----
+  document.getElementById("composer").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    freeText(text);
+  });
+  document.getElementById("reset").addEventListener("click", () => {
+    reset();
+    hint.textContent = "Empieza escribiendo «Hola» — el estudiante siempre inicia la conversación. Para ver la llamada: elige un servicio, «Ya estoy en España», «Menos de 30 días».";
+  });
+  providerSel.addEventListener("change", () => {
+    const z = providerSel.value === "zernio";
+    document.getElementById("provider-sub").textContent = z ? "webhook firmado por Zernio" : "webhook firmado por Meta";
+    document.getElementById("provider-note").textContent = z
+      ? "Con Zernio la pasarela gestiona plantillas, ventana de 24 h y rate limits, y el mismo webhook sirve para Instagram o Messenger. El guion es idéntico."
+      : "El guion no cambia con el proveedor: solo cambian la firma del webhook y quién gestiona plantillas y ventana de 24 h.";
+    log("sys", `Proveedor cambiado a ${z ? "Zernio" : "Meta directa"} · el guion no cambia`);
+  });
+
+  reset();
+})();
+</script>
